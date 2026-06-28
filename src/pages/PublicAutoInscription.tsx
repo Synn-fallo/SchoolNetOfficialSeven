@@ -76,20 +76,6 @@ export default function PublicAutoInscription() {
           <div className="w-12 h-1 bg-amber-500 mx-auto mt-2.5 rounded-full" />
         </div>
 
-        {/* Information Notice */}
-        <div className="mb-6 p-3.5 bg-blue-50/50 border border-blue-100/50 rounded-xl text-xs flex flex-col gap-1" id="register-notice">
-          <span className="font-bold text-blue-800">👋 Compte Visiteur Personnel</span>
-          <p className="text-blue-700 leading-relaxed font-medium">
-            Inscrivez-vous pour obtenir votre espace visiteur souverain. Une fois connecté, vous pourrez soumettre une demande officielle de création ou d'affiliation de votre établissement.
-          </p>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-3.5 bg-red-50 border border-red-100 text-red-700 text-xs rounded-xl font-bold">
-            {error}
-          </div>
-        )}
-
         {/* Form */}
         <form onSubmit={handleRegister} className="space-y-4" id="register-form">
           {/* Prénom */}
