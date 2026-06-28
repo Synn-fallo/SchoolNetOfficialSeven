@@ -1,0 +1,109 @@
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { supabase } from '@supabase/supabase-js';
+import { useAuth } from './AuthContext';
+
+interface BadgesContextType {
+  messagesBadge: number;
+  demandesBadge: number;
+  invitationsBadge: number;
+  demandesAutoInscriptionBadge: number;
+  refreshBadges: () => Promise<void>;
+}
+
+const BadgesContext = createContext<BadgesContextType | undefined>(undefined);
+
+export function BadgesProvider({ children }: { children: React.ReactNode }) {
+  const { user, roles } = useAuth();
+  const [messagesBadge, setMessagesBadge] = useState(0);
+  const [demandesBadge, setDemandesBadge] = useState(0);
+  const [invitationsBadge, setInvitationsBadge] = useState(0);
+  const [demandesAutoInscriptionBadge, setDemandesAutoInscriptionBadge] = useState(0);
+
+  const loadBadges = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      // 1. Messages non lus
+      const { count: messagesCount } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('destinataire_id', user.id)
+        .eq('est_lu', false);
+
+      setMessagesBadge(messagesCount || 0);
+
+      // 2. Demandes en attente (Admin uniquement)
+      const isAdmin = roles.some(r => r.role === 'admin' || r.role === 'chef_etablissement');
+      if (isAdmin) {
+        const { count: demandesCount } = await supabase
+          .from('demandes')
+          .select('*', { count: 'exact', head: true })
+          .eq('statut', 'en_attente');
+
+        setDemandesBadge(demandesCount || 0);
+      }
+
+      // 3. Invitations en attente (Enseignant/Admin)
+      if (user) {
+        const { count: invitationsCount } = await supabase
+          .from('invitations_enseignants')
+          .select('*', { count: 'exact', head: true })
+          .eq('statut', 'en_attente');
+
+        setInvitationsBadge(invitationsCount || 0);
+      }
+
+      // 4. Demandes auto-inscription (Admin établissement)
+      if (isAdmin) {
+        const { count: autoInscriptionCount } = await supabase
+          .from('demandes_auto_inscription')
+          .select('*', { count: 'exact', head: true })
+          .eq('statut', 'en_attente');
+
+        setDemandesAutoInscriptionBadge(autoInscriptionCount || 0);
+      }
+
+    } catch (error) {
+      console.warn('Erreur chargement badges:', error);
+    }
+  }, [user, roles]);
+
+  // Chargement initial
+  useEffect(() => {
+    loadBadges();
+
+    // Pas de Realtime sur le web pour éviter les erreurs
+    // On recharge simplement les badges toutes les 30 secondes
+    const interval = setInterval(() => {
+      loadBadges();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [loadBadges]);
+
+  const refreshBadges = useCallback(async () => {
+    await loadBadges();
+  }, [loadBadges]);
+
+  return (
+    <BadgesContext.Provider
+      value={{
+        messagesBadge,
+        demandesBadge,
+        invitationsBadge,
+        demandesAutoInscriptionBadge,
+        refreshBadges,
+      }}
+    >
+      {children}
+    </BadgesContext.Provider>
+  );
+}
+
+export function useBadges() {
+  const context = useContext(BadgesContext);
+  if (context === undefined) {
+    throw new Error('useBadges must be used within a BadgesProvider');
+  }
+  return context;
+}

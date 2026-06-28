@@ -1,0 +1,182 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import SidebarHeader from './SidebarHeader';
+import SidebarSection from './SidebarSection';
+import SidebarItem from './SidebarItem';
+import { MenuSection } from '@/types/sidebar.types';
+import { LogOut, User, AlertCircle, Menu, X } from 'lucide-react';
+
+interface SidebarProps {
+  isOpen: boolean;
+  onToggle: () => void;
+  sections: MenuSection[];
+  activePath: string;
+  onNavigate: (href: string) => void;
+  userName?: string;
+  userRole?: string;
+  etablissementNom?: string;
+  isChef?: boolean;
+}
+
+export default function Sidebar({
+  isOpen,
+  onToggle,
+  sections,
+  activePath,
+  onNavigate,
+  userName,
+  userRole,
+  etablissementNom,
+  isChef,
+}: SidebarProps) {
+  const navigate = useNavigate();
+  const { signOut, isProfileComplete } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  // Gestion du clic en dehors pour fermer sur mobile
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isOpen && sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+        if (window.innerWidth < 768) {
+          onToggle();
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen, onToggle]);
+
+  const isActive = (href: string) => {
+    return activePath === href || activePath.startsWith(href + '/');
+  };
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  const handleProfile = () => {
+    onNavigate('/profile');
+  };
+
+  const renderSections = () => {
+    return sections.map((section, idx) => (
+      <SidebarSection key={idx} title={section.title} isOpen={isOpen}>
+        {section.items.map((item) => (
+          <SidebarItem
+            key={item.id}
+            icon={item.icon}
+            label={item.label}
+            badge={item.badge}
+            active={isActive(item.href)}
+            isOpen={isOpen}
+            onClick={() => onNavigate(item.href)}
+          />
+        ))}
+      </SidebarSection>
+    ));
+  };
+
+  const renderAccountSection = () => {
+    if (!isOpen) {
+      return (
+        <div className="py-3 flex flex-col items-center gap-4 border-t border-gray-200">
+          <button
+            onClick={handleProfile}
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            title="Mon profil"
+          >
+            <User size={20} className="text-gray-500" />
+          </button>
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="p-2 rounded-lg hover:bg-red-50 transition-colors"
+            title="Déconnexion"
+          >
+            {isLoggingOut ? (
+              <div className="w-5 h-5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <LogOut size={20} className="text-red-500" />
+            )}
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="px-4 py-3 border-t border-gray-200 bg-white">
+        <button
+          onClick={handleProfile}
+          className="flex items-center gap-3 w-full px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <User size={18} className="text-gray-500" />
+          <span className="text-sm text-gray-600 font-medium">Mon profil</span>
+        </button>
+
+        <button
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="flex items-center gap-3 w-full px-2 py-2 rounded-lg hover:bg-red-50 transition-colors mt-1"
+        >
+          {isLoggingOut ? (
+            <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <LogOut size={18} className="text-red-500" />
+          )}
+          <span className="text-sm text-red-500 font-medium">
+            {isLoggingOut ? 'Déconnexion...' : 'Se déconnecter'}
+          </span>
+        </button>
+
+        {/* Indicateur de profil incomplet */}
+        {!isProfileComplete && (
+          <button
+            onClick={handleProfile}
+            className="flex items-center justify-center gap-2 w-full mt-3 py-2 bg-amber-50 rounded-lg"
+          >
+            <AlertCircle size={14} className="text-amber-500" />
+            <span className="text-xs text-amber-700 font-medium">Profil incomplet</span>
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  const sidebarWidth = isOpen ? 'w-72' : 'w-20';
+
+  return (
+    <div
+      ref={sidebarRef}
+      className={`${sidebarWidth} h-full bg-white border-r border-gray-200 overflow-hidden flex flex-col transition-all duration-200 fixed md:relative z-50 shadow-lg md:shadow-none`}
+      style={{ minHeight: '100vh' }}
+    >
+      <SidebarHeader
+        isOpen={isOpen}
+        onToggle={onToggle}
+        userName={userName}
+        userRole={userRole}
+        etablissementNom={etablissementNom}
+        isChef={isChef}
+      />
+
+      <div className="flex-1 overflow-y-auto">
+        <div className="py-4 pb-2">
+          {renderSections()}
+        </div>
+      </div>
+
+      {renderAccountSection()}
+    </div>
+  );
+}

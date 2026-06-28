@@ -1,0 +1,6 @@
+{
+  "name": "SchoolNet Official",
+  "description": "Plateforme web d'administration scolaire responsive SchoolNet - Phase 2",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

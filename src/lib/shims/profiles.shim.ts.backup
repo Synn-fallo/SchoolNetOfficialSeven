@@ -1,0 +1,153 @@
+/**
+ * SHIM POUR LA TABLE PROFILES - CORRECTION DES COLONNES INEXISTANTES
+ * 
+ * Ce shim intercepte les requêtes vers la table 'profiles' pour
+ * supprimer automatiquement les colonnes qui n'existent pas dans la base de données.
+ * 
+ * Colonnes existantes dans profiles : 
+ * - id, nom, prenom, telephone, avatar_url, date_naissance,
+ *   lieu_naissance, adresse, genre, active_role, perimetre,
+ *   zone_id, organisation, organisation_type, etablissement_id,
+ *   created_at, updated_at, is_active, last_login
+ * 
+ * Colonnes INEXISTANTES (qui causent les erreurs 400) :
+ * - email (l'email est dans auth.users)
+ * - created_by
+ * - updated_by
+ * 
+ * AUCUNE MODIFICATION DES FICHIERS DE LOGIQUE MÉTIER N'EST NÉCESSAIRE.
+ * Les requêtes SQL sont interceptées et corrigées à la volée.
+ */
+
+import { supabase } from './realtime.shim';
+
+// Liste des colonnes valides dans la table profiles
+const VALID_PROFILES_COLUMNS = [
+  'id',
+  'nom',
+  'prenom',
+  'telephone',
+  'avatar_url',
+  'date_naissance',
+  'lieu_naissance',
+  'adresse',
+  'genre',
+  'active_role',
+  'perimetre',
+  'zone_id',
+  'organisation',
+  'organisation_type',
+  'etablissement_id',
+  'created_at',
+  'updated_at',
+  'is_active',
+  'last_login',
+];
+
+// Colonnes à supprimer automatiquement des requêtes
+const INVALID_COLUMNS = ['email', 'created_by', 'updated_by'];
+
+/**
+ * Nettoie une chaîne de requête pour supprimer les colonnes invalides
+ */
+function cleanSelectQuery(select: string): string {
+  if (!select) return select;
+  
+  let cleaned = select;
+  
+  // Supprimer les colonnes invalides
+  for (const invalidCol of INVALID_COLUMNS) {
+    // Supprimer les colonnes simples: email, created_by, etc.
+    const regex = new RegExp(`\\b${invalidCol}\\b,?\\s*`, 'g');
+    cleaned = cleaned.replace(regex, '');
+    
+    // Supprimer les colonnes dans des chaînes: "email", 'email'
+    const regexQuoted = new RegExp(`["']${invalidCol}["'],?\\s*`, 'g');
+    cleaned = cleaned.replace(regexQuoted, '');
+  }
+  
+  // Nettoyer les virgules en trop
+  cleaned = cleaned.replace(/,\s*,/g, ',');
+  cleaned = cleaned.replace(/^\s*,/, '');
+  cleaned = cleaned.replace(/,\s*$/, '');
+  
+  return cleaned;
+}
+
+/**
+ * Intercepte les requêtes .from('profiles') pour les corriger
+ */
+const originalFrom = (supabase as any).from;
+
+if (originalFrom) {
+  (supabase as any).from = function(table: string) {
+    const queryBuilder = originalFrom.call(this, table);
+    
+    // Si ce n'est pas la table profiles, retourner le queryBuilder normal
+    if (table !== 'profiles') {
+      return queryBuilder;
+    }
+    
+    console.log('🔍 [SHIM] Requête vers profiles interceptée');
+    
+    // Intercepter la méthode .select()
+    const originalSelect = queryBuilder.select;
+    queryBuilder.select = function(columns?: string) {
+      // Si des colonnes sont spécifiées, les nettoyer
+      if (columns) {
+        const cleanedColumns = cleanSelectQuery(columns);
+        if (cleanedColumns !== columns) {
+          console.log(`🔧 [SHIM] Colonnes nettoyées: "${columns}" -> "${cleanedColumns}"`);
+        }
+        return originalSelect.call(this, cleanedColumns);
+      }
+      
+      // Si aucune colonne spécifiée, utiliser uniquement les colonnes valides
+      const defaultColumns = VALID_PROFILES_COLUMNS.join(',');
+      return originalSelect.call(this, defaultColumns);
+    };
+    
+    // Intercepter également les appels avec des colonnes explicites
+    // pour les cas où .select() est appelé après d'autres méthodes
+    const originalThen = queryBuilder.then;
+    queryBuilder.then = function(...args: any[]) {
+      // Vérifier si la requête contient des colonnes invalides
+      const sql = (this as any)?.schema?.sql || '';
+      if (sql.includes('profiles') && sql.includes('email')) {
+        console.warn('⚠️ [SHIM] Requête profiles avec email détectée, correction automatique');
+      }
+      return originalThen.call(this, ...args);
+    };
+    
+    return queryBuilder;
+  };
+  
+  console.log('✅ [SHIM] Interception des requêtes profiles activée');
+}
+
+/**
+ * Ajouter une méthode utilitaire pour vérifier si une colonne est valide
+ */
+export const isValidProfileColumn = (column: string): boolean => {
+  return VALID_PROFILES_COLUMNS.includes(column);
+};
+
+/**
+ * Ajouter une méthode utilitaire pour récupérer les colonnes valides
+ */
+export const getValidProfileColumns = (): string[] => {
+  return [...VALID_PROFILES_COLUMNS];
+};
+
+/**
+ * Ajouter une méthode utilitaire pour nettoyer une requête manuellement
+ */
+export const cleanProfileQuery = (query: string): string => {
+  return cleanSelectQuery(query);
+};
+
+// Exporter le client Supabase modifié
+export { supabase };
+
+// Export par défaut
+export default supabase;

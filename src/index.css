@@ -1,0 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-schoolnet-primary: #1e3a8a;
+  --color-schoolnet-primary-light: #2563eb;
+  --color-schoolnet-secondary: #0d9488;
+  --color-schoolnet-accent: #f59e0b;
+}

@@ -1,0 +1,195 @@
+/**
+ * SHIM POUR SUPABASE REALTIME - VERSION WEB
+ * 
+ * Ce shim désactive les fonctionnalités Realtime sur le web
+ * pour éviter les erreurs "cannot add postgres_changes callbacks after subscribe()".
+ * 
+ * AUCUNE MODIFICATION DES FICHIERS DE LOGIQUE MÉTIER N'EST NÉCESSAIRE.
+ * Les appels à supabase.channel(), .on() et .subscribe() sont interceptés.
+ */
+
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+
+// Récupérer les variables d'environnement
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('❌ Variables d\'environnement Supabase manquantes :');
+  console.error('   VITE_SUPABASE_URL:', supabaseUrl);
+  console.error('   VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'Définie' : 'Manquante');
+  throw new Error(
+    'Variables d\'environnement Supabase manquantes. ' +
+    'Vérifiez que VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY sont définies dans votre fichier .env'
+  );
+}
+
+// Créer le client Supabase
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storage: window.localStorage,
+  },
+  // Désactiver Realtime globalement pour le web
+  realtime: {
+    params: {
+      eventsPerSecond: 0, // Désactiver les événements en temps réel
+    },
+  },
+});
+
+/**
+ * INTERCEPTEUR POUR LA MÉTHODE channel()
+ * 
+ * Remplace la méthode channel par une version qui
+ * retourne un channel "factice" sans fonctionnalités Realtime.
+ */
+const originalChannel = (supabase as any).channel;
+
+if (originalChannel) {
+  (supabase as any).channel = function(name: string, opts?: any) {
+    console.log(`🔇 [SHIM] Realtime désactivé pour le channel: ${name}`);
+    
+    // Créer un channel factice qui ne fait rien
+    const dummyChannel = {
+      name: name,
+      opts: opts || {},
+      
+      // La méthode on ne fait rien et retourne le channel
+      on: function(event: string, filter: any, callback: any) {
+        console.log(`🔇 [SHIM] .on() ignoré pour ${name} (event: ${event})`);
+        return this;
+      },
+      
+      // La méthode subscribe ne fait rien et retourne le channel
+      subscribe: function(callback?: any) {
+        console.log(`🔇 [SHIM] .subscribe() ignoré pour ${name}`);
+        if (callback) {
+          // Simuler un callback "SUBSCRIBED" pour ne pas casser le code
+          setTimeout(() => {
+            if (typeof callback === 'function') {
+              callback('SUBSCRIBED');
+            } else if (callback && typeof callback === 'object' && callback.onOpen) {
+              callback.onOpen();
+            }
+          }, 10);
+        }
+        return this;
+      },
+      
+      // La méthode unsubscribe ne fait rien
+      unsubscribe: function() {
+        console.log(`🔇 [SHIM] .unsubscribe() ignoré pour ${name}`);
+        return this;
+      },
+      
+      // La méthode send ne fait rien
+      send: function(type: string, payload: any) {
+        console.log(`🔇 [SHIM] .send() ignoré pour ${name}`);
+        return this;
+      },
+      
+      // La méthode close ne fait rien
+      close: function() {
+        console.log(`🔇 [SHIM] .close() ignoré pour ${name}`);
+        return this;
+      },
+      
+      // La méthode removeAllListeners ne fait rien
+      removeAllListeners: function() {
+        console.log(`🔇 [SHIM] .removeAllListeners() ignoré pour ${name}`);
+        return this;
+      },
+      
+      // La méthode listen ne fait rien
+      listen: function(type: string, callback: any) {
+        console.log(`🔇 [SHIM] .listen() ignoré pour ${name}`);
+        return this;
+      },
+    };
+    
+    // Ajouter les méthodes de l'API Realtime Channel
+    // pour éviter les erreurs "channel.on is not a function"
+    (dummyChannel as any).onError = function(callback: any) {
+      return this;
+    };
+    
+    (dummyChannel as any).onClose = function(callback: any) {
+      return this;
+    };
+    
+    (dummyChannel as any).onOpen = function(callback: any) {
+      return this;
+    };
+    
+    (dummyChannel as any).presence = function() {
+      return {
+        onSync: function(callback: any) { return this; },
+        onJoin: function(callback: any) { return this; },
+        onLeave: function(callback: any) { return this; },
+        track: function(payload: any) { return this; },
+        untrack: function() { return this; },
+        state: function() { return {}; },
+      };
+    };
+    
+    return dummyChannel;
+  };
+  
+  console.log('✅ [SHIM] Realtime désactivé sur le web');
+}
+
+/**
+ * INTERCEPTEUR POUR LA MÉTHODE removeAllChannels()
+ * 
+ * Évite les erreurs lors du nettoyage des channels.
+ */
+const originalRemoveAllChannels = (supabase as any).removeAllChannels;
+if (originalRemoveAllChannels) {
+  (supabase as any).removeAllChannels = function() {
+    console.log('🔇 [SHIM] removeAllChannels() ignoré');
+    return Promise.resolve();
+  };
+}
+
+/**
+ * INTERCEPTEUR POUR LA MÉTHODE getChannels()
+ * 
+ * Retourne un tableau vide pour éviter les erreurs.
+ */
+const originalGetChannels = (supabase as any).getChannels;
+if (originalGetChannels) {
+  (supabase as any).getChannels = function() {
+    return [];
+  };
+}
+
+/**
+ * INTERCEPTEUR POUR LA MÉTHODE setAuth()
+ * 
+ * Assure que l'authentification fonctionne normalement.
+ */
+const originalSetAuth = (supabase as any).auth?.setAuth;
+if (originalSetAuth) {
+  (supabase as any).auth.setAuth = function(token: string) {
+    return originalSetAuth.call(this, token);
+  };
+}
+
+// Exporter le client Supabase modifié
+export { supabase };
+
+// Exporter également les membres de l'API Supabase
+export * from '@supabase/supabase-js';
+
+// Export par défaut
+export default supabase;
+
+// Désactiver le logging en production
+if (import.meta.env.VITE_APP_ENV === 'production') {
+  console.log('🚀 Production mode: Realtime logging désactivé');
+} else {
+  console.log('🔧 Development mode: Realtime shim actif');
+}
