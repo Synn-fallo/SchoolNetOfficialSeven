@@ -59,23 +59,6 @@ export default function Login() {
           <div className="w-12 h-1 bg-amber-500 mx-auto mt-2.5 rounded-full" />
         </div>
 
-        {/* Demo Warning Banner */}
-        <div className="mb-6 p-3.5 bg-amber-50/70 border border-amber-100 rounded-xl text-xs flex flex-col gap-1.5" id="demo-notice">
-          <span className="font-bold text-amber-800 flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
-            💡 Simulation de Connexion (Phase 2)
-          </span>
-          <p className="text-amber-700 leading-relaxed font-medium">
-            Cliquez directement sur <strong className="font-bold text-amber-900">Se connecter</strong> pour vous connecter avec le compte de démonstration, ou saisissez l'adresse de votre choix.
-          </p>
-        </div>
-
-        {errorMsg && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-100 text-red-700 text-xs rounded-xl font-semibold">
-            {errorMsg}
-          </div>
-        )}
-
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4" id="login-form">
           {/* Email input */}
