@@ -156,10 +156,29 @@ export default function PublicEtablissementDetail() {
     return (
       <div className="py-20 text-center max-w-xl mx-auto px-4" id="detail-not-found">
         <Building2 className="h-16 w-16 text-slate-300 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Établissement introuvable</h2>
-        <p className="text-slate-500 mb-6 text-sm">Le site que vous essayez d'explorer n'existe pas ou n'est pas encore répertorié.</p>
-        <Link to="/etablissements" className="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 transition-colors inline-flex items-center gap-1.5 shadow">
-          <ArrowLeft className="h-4 w-4" /> Retour à l'annuaire
+        
+        {/* ✅ NOUVEAU MESSAGE */}
+        <h2 className="text-2xl font-bold text-slate-800 mb-3">
+          Espace Officiel SchoolNet – Réservé pour cet établissement
+        </h2>
+        
+        <p className="text-slate-600 text-sm leading-relaxed mb-4 max-w-lg mx-auto">
+          L'identité numérique de cet établissement d'excellence est d'ores et déjà sécurisée sur notre plateforme. 
+          Son portail d'administration complet attend son ouverture officielle.
+        </p>
+        
+        <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-lg mx-auto">
+          Dirigeants, revendiquez dès aujourd'hui la gestion de votre espace souverain et ouvrez les portes 
+          de l'école digitale à vos élèves et parents.
+        </p>
+        
+        <Link 
+          to="/etablissements" 
+          className="inline-flex items-center gap-1.5 mt-6 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-colors shadow"
+          id="back-to-directory-from-not-found"
+        >
+          <ArrowLeft className="h-4 w-4" /> 
+          Retour à l'annuaire
         </Link>
       </div>
     );
@@ -178,7 +197,6 @@ export default function PublicEtablissementDetail() {
     e.preventDefault();
     setIsSubmitted(true);
     setTimeout(() => {
-      // Auto-reset form after notification
       setIsSubmitted(false);
       setFormData({
         parentNom: "",
