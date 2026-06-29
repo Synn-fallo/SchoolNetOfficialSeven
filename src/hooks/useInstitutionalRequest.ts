@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase.web';
 import { useAuth } from '@/contexts/AuthContext';
 import { sendInAppNotification, sendEmail } from '@/lib/notifications';
@@ -30,7 +30,7 @@ interface UseInstitutionalRequestProps {
 
 export function useInstitutionalRequest({ role }: UseInstitutionalRequestProps) {
   const { user, profile, refreshProfile } = useAuth();
-  const router = useRouter();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
