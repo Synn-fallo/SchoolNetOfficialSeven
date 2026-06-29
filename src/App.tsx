@@ -23,6 +23,16 @@ import PublicCharteEleve from "@/pages/PublicCharteEleve";
 import PublicCharteEnseignant from "@/pages/PublicCharteEnseignant";
 import PublicCharteParent from "@/pages/PublicCharteParent";
 
+// ============================================================
+// ✅ PAGES ADMIN (PHASE 2)
+// ============================================================
+import AdminDemandesRole from "@/pages/AdminDemandesRole";
+import AdminDemandesEtablissements from "@/pages/AdminDemandesEtablissements";
+import AdminDemandesPartenariats from "@/pages/AdminDemandesPartenariats";
+import AdminEducMasterConfig from "@/pages/AdminEducMasterConfig";
+import AdminUtilisateurs from "@/pages/AdminUtilisateurs";
+import AdminScolarite from "@/pages/AdminScolarite";
+
 export default function App() {
   return (
     <AuthProvider>
@@ -37,7 +47,17 @@ export default function App() {
               <Route path="/parent/annonces" element={<ParentAnnoncesScreen />} />
               <Route path="/annonces" element={<ParentAnnoncesScreen />} />
 
-              {/* Public Directories (Both standard & prefixed routes for absolute compatibility) */}
+              {/* ============================================================
+                  ✅ ROUTES ADMIN (PHASE 2)
+                  ============================================================ */}
+              <Route path="/admin/demandes-role" element={<AdminDemandesRole />} />
+              <Route path="/admin/demandes-etablissements" element={<AdminDemandesEtablissements />} />
+              <Route path="/admin/demandes-partenariats" element={<AdminDemandesPartenariats />} />
+              <Route path="/admin/educmaster-config" element={<AdminEducMasterConfig />} />
+              <Route path="/admin/utilisateurs" element={<AdminUtilisateurs />} />
+              <Route path="/admin/scolarite" element={<AdminScolarite />} />
+
+              {/* Public Directories */}
               <Route path="/etablissements" element={<PublicEtablissements />} />
               <Route path="/public/etablissements" element={<PublicEtablissements />} />
               
@@ -70,4 +90,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-
