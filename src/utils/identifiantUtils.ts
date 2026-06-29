@@ -12,8 +12,8 @@ import { educmasterUtils } from './educmasterUtils';
 /**
  * Nettoyer un nom pour génération d'identifiant
  * - Convertit en minuscules
- - Supprime les accents
- - Supprime les caractères spéciaux
+ * - Supprime les accents
+ * - Supprime les caractères spéciaux
  */
 export function cleanNomForIdentifiant(nom: string): string {
   return nom
