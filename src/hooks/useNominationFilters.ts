@@ -1,6 +1,11 @@
-// /home/project/hooks/useNominationFilters.ts
 import { useState, useMemo } from 'react';
-import { Nomination } from './useNominations';
+
+export interface Nomination {
+  id: string;
+  type_admin: string;
+  is_active: boolean;
+  [key: string]: any;
+}
 
 export interface NominationFilters {
   type: string;
