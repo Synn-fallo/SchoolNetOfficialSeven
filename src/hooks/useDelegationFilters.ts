@@ -1,6 +1,12 @@
-// /home/project/hooks/useDelegationFilters.ts
 import { useState, useMemo } from 'react';
-import { Delegation } from './useDelegations';
+
+export interface Delegation {
+  id: string;
+  type: string;
+  is_active: boolean;
+  date_fin?: string;
+  [key: string]: any;
+}
 
 export interface DelegationFilters {
   type: string;
