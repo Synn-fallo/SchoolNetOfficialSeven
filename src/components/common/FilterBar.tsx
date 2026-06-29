@@ -14,27 +14,33 @@ export interface FilterGroup {
 }
 
 interface FilterBarProps {
-  groups: FilterGroup[];
-  activeFilters: Record<string, string>;
+  groups?: FilterGroup[];
+  activeFilters?: Record<string, string>;
   onFilterChange: (groupId: string, value: string) => void;
   onClearAll?: () => void;
   showClearAll?: boolean;
 }
 
 export default function FilterBar({
-  groups,
-  activeFilters,
+  groups = [],
+  activeFilters = {},
   onFilterChange,
   onClearAll,
   showClearAll = true,
 }: FilterBarProps) {
-  const hasActiveFilters = Object.values(activeFilters).some(v => v !== '');
+  // ✅ Vérification que activeFilters existe avant d'utiliser Object.values
+  const hasActiveFilters = activeFilters && Object.values(activeFilters).some(v => v !== '');
 
   const handleClearAll = () => {
     if (onClearAll) {
       onClearAll();
     }
   };
+
+  // ✅ Si groups est vide, ne pas afficher le composant
+  if (!groups || groups.length === 0) {
+    return null;
+  }
 
   return (
     <div className="bg-white rounded-2xl p-4 mb-6 border border-slate-150 shadow-sm flex flex-col gap-4">
@@ -64,7 +70,7 @@ export default function FilterBar({
             </span>
             <div className="flex flex-wrap gap-2">
               {group.options.map((option) => {
-                const isActive = activeFilters[group.id] === option.value;
+                const isActive = activeFilters && activeFilters[group.id] === option.value;
                 return (
                   <button
                     key={option.id}
