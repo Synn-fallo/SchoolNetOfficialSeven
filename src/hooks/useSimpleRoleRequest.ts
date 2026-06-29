@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase.web';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -23,7 +23,7 @@ interface UseSimpleRoleRequestProps {
 
 export function useSimpleRoleRequest({ role }: UseSimpleRoleRequestProps) {
   const { user, profile, refreshProfile } = useAuth();
-  const router = useRouter();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
