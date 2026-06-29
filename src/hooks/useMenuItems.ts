@@ -163,7 +163,7 @@ const menusByRole: Record<string, MenuSection[]> = {
       items: [
         { id: "dashboard", icon: "LayoutDashboard", label: "Dashboard", href: "/dashboard" },
         { id: "etablissements", icon: "Building2", label: "Établissements", href: "/etablissements" },
-        { id: "utilisateurs", icon: "Users", label: "Utilisateurs", href: "/utilisateurs" },
+        { id: "utilisateurs", icon: "Users", label: "Utilisateurs", href: "/admin/utilisateurs" },
         { id: "finance", icon: "DollarSign", label: "Finance", href: "/finance" },
       ],
     },
@@ -177,15 +177,15 @@ const menusByRole: Record<string, MenuSection[]> = {
     {
       title: "Gestion des demandes",
       items: [
-        { id: "demandes-roles", icon: "Users", label: "Demandes de rôles", href: "/demandes-role" },
-        { id: "demandes-etablissements", icon: "FileText", label: "Demandes établissements", href: "/demandes-etablissements" },
-        { id: "demandes-partenariats", icon: "Handshake", label: "Demandes partenariats", href: "/demandes-partenariats" },
+        { id: "demandes-roles", icon: "Users", label: "Demandes de rôles", href: "/admin/demandes-role" },
+        { id: "demandes-etablissements", icon: "FileText", label: "Demandes établissements", href: "/admin/demandes-etablissements" },
+        { id: "demandes-partenariats", icon: "Handshake", label: "Demandes partenariats", href: "/admin/demandes-partenariats" },
       ],
     },
     {
       title: "Paramètres",
       items: [
-        { id: "educmaster-config", icon: "Settings", label: "Configuration EducMaster", href: "/admin/parametres/educmaster" },
+        { id: "educmaster-config", icon: "Settings", label: "Configuration EducMaster", href: "/admin/educmaster-config" },
       ],
     },
   ],
