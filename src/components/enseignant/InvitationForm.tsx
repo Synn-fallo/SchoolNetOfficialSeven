@@ -340,4 +340,26 @@ export default function InvitationForm({ etablissementId, onSuccess, onCancel }:
           )}
           <button
             onClick={handleSubmit}
-            disabled={loading || (isAE &&
+            disabled={loading || (isAE && plafondInfo && !plafondInfo.allowed)}
+            className={`
+              flex-1 flex flex-row items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium text-white transition-colors
+              ${(loading || (isAE && plafondInfo && !plafondInfo.allowed))
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-schoolnet-primary hover:bg-schoolnet-primary/90'
+              }
+            `}
+          >
+            {loading ? (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                <Mail className="w-4 h-4" />
+                Envoyer l'invitation
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
