@@ -1,3 +1,4 @@
+// /home/project/src/App.tsx
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -33,6 +34,20 @@ import AdminEducMasterConfig from "@/pages/AdminEducMasterConfig";
 import AdminUtilisateurs from "@/pages/AdminUtilisateurs";
 import AdminScolarite from "@/pages/AdminScolarite";
 
+// ============================================================
+// ✅ PAGES ENSEIGNANT (PHASE 3)
+// ============================================================
+import EnseignantDashboard from "@/pages/EnseignantDashboard";
+import EnseignantMesClasses from "@/pages/EnseignantMesClasses";
+import EnseignantNotes from "@/pages/EnseignantNotes";
+import EnseignantCahierTexte from "@/pages/EnseignantCahierTexte";
+import EnseignantReleveNotes from "@/pages/EnseignantReleveNotes";
+import EnseignantAnnoncesPublier from "@/pages/EnseignantAnnoncesPublier";
+import EnseignantEspacesClasses from "@/pages/EnseignantEspacesClasses";
+import EnseignantRendezVous from "@/pages/EnseignantRendezVous";
+import EnseignantRendezVousForm from "@/pages/EnseignantRendezVousForm";
+import EnseignantCanalClasse from "@/pages/EnseignantCanalClasse";
+
 export default function App() {
   return (
     <AuthProvider>
@@ -56,6 +71,20 @@ export default function App() {
               <Route path="/admin/educmaster-config" element={<AdminEducMasterConfig />} />
               <Route path="/admin/utilisateurs" element={<AdminUtilisateurs />} />
               <Route path="/admin/scolarite" element={<AdminScolarite />} />
+
+              {/* ============================================================
+                  ✅ ROUTES ENSEIGNANT (PHASE 3)
+                  ============================================================ */}
+              <Route path="/enseignant/dashboard" element={<EnseignantDashboard />} />
+              <Route path="/enseignant/mes-classes" element={<EnseignantMesClasses />} />
+              <Route path="/enseignant/notes" element={<EnseignantNotes />} />
+              <Route path="/enseignant/cahier-texte" element={<EnseignantCahierTexte />} />
+              <Route path="/enseignant/releve-notes" element={<EnseignantReleveNotes />} />
+              <Route path="/enseignant/annonces-publier" element={<EnseignantAnnoncesPublier />} />
+              <Route path="/enseignant/espaces-classes" element={<EnseignantEspacesClasses />} />
+              <Route path="/enseignant/rendez-vous" element={<EnseignantRendezVous />} />
+              <Route path="/enseignant/rendez-vous-form" element={<EnseignantRendezVousForm />} />
+              <Route path="/enseignant/canal-classe" element={<EnseignantCanalClasse />} />
 
               {/* Public Directories */}
               <Route path="/etablissements" element={<PublicEtablissements />} />
