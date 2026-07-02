@@ -1,3 +1,4 @@
+// /home/project/src/hooks/useMenuItems.ts
 import { useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBadges } from "@/hooks/useBadges";
@@ -91,17 +92,19 @@ const menusByRole: Record<string, MenuSection[]> = {
     {
       title: "Pédagogie",
       items: [
-        { id: "classes", icon: "Users", label: "Mes classes", href: "/classes" },
-        { id: "notes", icon: "BookOpen", label: "Évaluations & Notes", href: "/notes" },
-        { id: "cahier-texte", icon: "BookOpen", label: "Cahier de texte", href: "/cahier-texte" },
+        { id: "classes", icon: "Users", label: "Mes classes", href: "/enseignant/mes-classes" },
+        { id: "notes", icon: "BookOpen", label: "Évaluations & Notes", href: "/enseignant/notes" },
+        { id: "cahier-texte", icon: "BookOpen", label: "Cahier de texte", href: "/enseignant/cahier-texte" },
+        { id: "releve-notes", icon: "GraduationCap", label: "Relevés de notes", href: "/enseignant/releve-notes" },
       ],
     },
     {
       title: "Communication",
       items: [
         { id: "messages", icon: "MessageSquare", label: "Messages", href: "/messages" },
-        { id: "rendez-vous", icon: "Calendar", label: "Rendez-vous parents", href: "/rendez-vous" },
-        { id: "publier-annonce", icon: "Megaphone", label: "Publier une annonce", href: "/annonces-publier" },
+        { id: "rendez-vous", icon: "Calendar", label: "Rendez-vous parents", href: "/enseignant/rendez-vous" },
+        { id: "publier-annonce", icon: "Megaphone", label: "Publier une annonce", href: "/enseignant/annonces-publier" },
+        { id: "canal-classe", icon: "MessageCircle", label: "Canal de classe", href: "/enseignant/canal-classe" },
       ],
     },
   ],
